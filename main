@@ -1,0 +1,212 @@
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QFormLayout, QLabel, QLineEdit, QTableWidget, QTableWidgetItem,
+    QPushButton, QGridLayout
+)
+from PyQt5 import QtCore
+
+class Window(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.layout = QFormLayout()
+        self.setLayout(self.layout)
+        self.resize(400, 400)
+        self.setWindowTitle('Final Exam')
+
+        self.addSubject = QPushButton('Add Subject')
+        self.gpaButton = QPushButton('Calculate GPA')
+
+        self.table = QTableWidget()
+        self.table.setColumnCount(2)
+        self.table.setHorizontalHeaderLabels(['Subject', 'Score'])
+        self.skor = 0
+        self.gpa = 0
+        self.total = 0
+        self.A = 0
+        self.Amin = 0
+        self.Bplus = 0
+        self.B = 0
+        self.Bmin = 0
+        self.Cplus = 0
+        self.C = 0
+        self.D = 0
+        self.E = 0
+
+        self.layout.addRow(self.addSubject)
+        self.layout.addRow(self.gpaButton)
+        self.layout.addRow(self.table)
+
+        self.addSubject.clicked.connect(self.add_subject)
+        self.table.itemChanged.connect(self.on_change)
+        self.gpaButton.clicked.connect(self.calculate)
+    
+    def add_subject(self):
+       row_count = self.table.rowCount()
+       self.table.insertRow(row_count)
+
+    def on_change(self, item):
+        col = item.column()
+        rpw = item.row()
+        grade = ''
+        credit = 3
+
+        if col == 1 and not item.text().isnumeric():
+            item.setText('')
+        if col == 1 and item.text().isnumeric():
+            rate = float(item.text())
+            if col == 1 and (rate < 0 or rate > 100):
+                item.setText('')
+            if rate >= 85 and rate <=100:
+                grade = 'A'
+                index = 4.00
+                self.A = self.A + 1
+                score_A = credit * index
+                self.skor = self.skor + score_A
+                print(grade)
+            elif rate < 85 and rate >=80:
+                grade = 'A-'
+                index = 3.67
+                self.Amin = self.Amin + 1
+                score_Amin = credit * index
+                self.skor = self.skor + score_Amin
+                print(grade)
+            elif rate < 80 and rate >=75:
+                grade = 'B+'
+                index = 3.33
+                self.Bplus = self.Bplus + 1
+                score_Bplus = credit * index
+                self.skor = self.skor + score_Bplus
+                print(grade)
+            elif rate < 75 and rate >=70:
+                grade = 'B'
+                index = 3.00
+                self.B = self.B + 1
+                score_B = credit * index
+                self.skor = self.skor + score_B
+                print(grade)
+            elif rate < 70 and rate >=67:
+                grade = 'B-'
+                index = 2.67
+                self.Bmin = self.Bmin + 1
+                score_Bmin = credit * index
+                self.skor = self.skor + score_Bmin
+                print(grade)
+            elif rate < 67 and rate >=64:
+                grade = 'C+'
+                index = 2.33
+                self.Cplus = self.Cplus + 1
+                score_Cplus = credit * index
+                self.skor = self.skor + score_Cplus
+                print(grade)
+            elif rate < 64 and rate >=60:
+                grade = 'C'
+                index = 2.00
+                self.C = self.C + 1
+                score_C = credit * index
+                self.skor = self.skor + score_C
+                print(grade)
+            elif rate < 60 and rate >=55:
+                grade = 'D'
+                index = 1.00
+                self.D = self.D + 1
+                score_D = credit * index
+                self.skor = self.skor + score_D
+                print(grade)
+            else:
+                grade = 'E'
+                index = 0
+                self.E = self.E + 1
+                score_E = credit * index
+                self.skor = self.skor + score_E
+                print(grade)
+
+            print (self.skor)
+
+        empty = ''
+        if self.table.cellEntered == empty:
+            credit = 0
+        self.total = credit * self.table.rowCount()
+        self.gpa = self.skor / self.total
+        print('GPA ' + str("{:.2f}".format(self.gpa)))
+
+    def calculate(self):
+        self.second_window = Second_Window(self)
+        self.second_window.show()
+        self.second_window.A_In.setText(str(self.A))
+        self.second_window.Amin_In.setText(str(self.Amin))
+        self.second_window.Bplus_In.setText(str(self.Bplus))
+        self.second_window.B_In.setText(str(self.B))
+        self.second_window.Bmin_In.setText(str(self.Bmin))
+        self.second_window.Cplus_In.setText(str(self.Cplus))
+        self.second_window.C_In.setText(str(self.C))
+        self.second_window.D_In.setText(str(self.D))
+        self.second_window.E_In.setText(str(self.E))
+        self.second_window.gpa.setText(str("{:.2f}".format(self.gpa)))
+        self.second_window.index_in.setText( str("{:.2f}".format(self.skor)))
+        self.second_window.cred_in.setText(str(self.total))
+
+class Second_Window(QWidget):
+    def __init__(self, main_window):
+        QWidget.__init__(self)
+        self.layout = QFormLayout()
+        self.setLayout(self.layout)
+        self.setWindowTitle('GPA Report')  
+        self.resize(400, 400)
+
+        self.main_window = main_window
+        self.label = QLabel('Your GPA')
+        self.label.setStyleSheet('''font: bold 36px;''')
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.gpa = QLabel('')
+        self.gpa.setStyleSheet('''font: bold 36px;''')
+        self.gpa.setAlignment(QtCore.Qt.AlignCenter)
+        self.result = QLabel('Result: ')
+        self.A = QLabel('A: ')
+        self.Amin = QLabel('A-: ')
+        self.Bplus = QLabel('B+: ')
+        self.B = QLabel('B: ')
+        self.Bmin = QLabel('B-: ')
+        self.Cplus =QLabel('C+: ')
+        self.C = QLabel('C: ')
+        self.D =QLabel('D: ')
+        self.E = QLabel('E: ')
+        self.totalIndex = QLabel('Total Index : ')
+        self.totalCredit = QLabel('Total Credits : ')
+        self.closed = QPushButton('Close')
+        
+        self.closed.clicked.connect(self.close_button)
+
+        self.A_In = QLabel('')
+        self.Amin_In = QLabel('')
+        self.Bplus_In = QLabel('')
+        self.B_In = QLabel('')
+        self.Bmin_In = QLabel('')
+        self.Cplus_In = QLabel('')
+        self.C_In = QLabel('')
+        self.D_In = QLabel('')
+        self.E_In = QLabel('')
+        self.index_in = QLabel('')
+        self.cred_in = QLabel('')
+
+        self.layout.addRow(self.label)
+        self.layout.addRow(self.gpa)
+        self.layout.addRow(self.result)
+        self.layout.addRow(self.A, self.A_In)
+        self.layout.addRow(self.Amin, self.Amin_In)
+        self.layout.addRow(self.Bplus, self.Bplus_In)
+        self.layout.addRow(self.B, self.B_In)
+        self.layout.addRow(self.Bmin, self.Bmin_In)
+        self.layout.addRow(self.Cplus, self.Cplus_In)
+        self.layout.addRow(self.C, self.C_In)
+        self.layout.addRow(self.D, self.D_In)
+        self.layout.addRow(self.E, self.E_In)
+        self.layout.addRow(self.totalIndex, self.index_in)
+        self.layout.addRow(self.totalCredit, self.cred_in)
+        self.layout.addRow(self.closed)
+
+    def close_button(self):
+        self.close()
+
+app = QApplication([])
+window = Window()
+window.show()
+app.exec_()
